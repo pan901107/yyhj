@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- 与官方页一致：不声明 viewport，手机浏览器按桌面宽度（约 980px）渲染后整页等比缩放 -->
 <title>证书查询结果</title>
 <style>
   :root {
@@ -116,27 +116,29 @@
   }
 
   /* ===================== 窄屏适配 ===================== */
-  /* 1) 中等宽度：两组由并排改为上下堆叠，标签与值各自独占一行 */
+  /* 与官方页一致：标签与值始终同一行，组内不再上下分行。
+     窄屏只是把两列并排改为上下堆叠。 */
   @media (max-width: 900px) {
     .cert__row {
       display: block;
-      padding: 14px 12px;
+      padding: 13px 12px;
       min-height: 0;
     }
 
     .cert__col {
-      display: block;
+      display: flex;
       width: 100%;
-      margin-top: 14px;
+      margin-top: 10px;
     }
 
     .cert__col:first-child { margin-top: 0; }
 
-    .cert__label { display: block; }
-    .cert__value { display: block; }
+    /* 标签定宽（放得下最长标签「取得资格时间：」并留出间隔），值接在其后占余下宽度 */
+    .cert__label { width: 8.6em; flex: none; }
+    .cert__value { flex: 1 1 auto; min-width: 0; }
   }
 
-  /* 2) 手机：单列，标签在上、值在下（与政务网原生页面一致） */
+  /* 2) 手机：字号与间距收紧，标签+值仍在同一行 */
   @media (max-width: 560px) {
     body { padding: 10px 10px 40px; font-size: 16px; }
 
@@ -155,9 +157,11 @@
       line-height: 1.4;
     }
 
-    .cert__row { padding: 14px 12px; }
+    .cert__row { padding: 12px; }
 
-    .cert__col { line-height: 1.45; }
+    .cert__col { line-height: 1.45; margin-top: 9px; }
+
+    .cert__label { width: 8.4em; }
   }
 </style>
 </head>
