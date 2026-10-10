@@ -20,6 +20,12 @@
 
   html, body { height: 100%; }
 
+  html {
+    /* 关闭移动端文本自动放大，避免同一份 CSS 在不同浏览器里字号不一致 */
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+  }
+
   body {
     margin: 0;
     padding: 16px 20px 60px;
@@ -47,11 +53,17 @@
   }
 
   /* ===================== 卡片 2：证书明细 ===================== */
-  .wrap { max-width: 1280px; }
+  /* 明细卡片固定 900px 并相对视口居中（用全宽容器 + 内部居中，避免滚动条宽度造成的偏移） */
+  .wrap {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+  }
 
   .cert {
+    width: 100%;
     max-width: 900px;
-    margin: 40px auto 0;
+    margin: 40px 0 0;
     background: var(--card-bg);
     border: 1px solid var(--line);
     border-radius: 2px;
@@ -67,23 +79,34 @@
     color: var(--text);
   }
 
+  /* 一行 = 两组字段并排（姓名 | 身份证号）。两组各占一列，列间距即两组之间的间隔；
+     标签与值在同一列内左右排布；列内按内容自动定宽，放不下时值才折行。 */
   .cert__row {
     display: grid;
-    grid-template-columns: 100px minmax(140px, 1fr) 82px minmax(0, 1.6fr);
-    column-gap: 10px;
+    grid-template-columns: 1fr 1fr;
+    column-gap: 64px;
     align-items: center;
     min-height: 48px;
-    padding: 0 12px;
+    padding: 12px;
     border-bottom: 1px solid var(--line-soft);
   }
 
   .cert__row:last-child { border-bottom: 0; }
 
-  .cert__label { color: var(--text-sub); }
+  .cert__col {
+    min-width: 0;
+    line-height: 1.5;
+  }
 
+  .cert__label {
+    color: var(--text-sub);
+    white-space: nowrap;      /* 标签绝不折行 */
+  }
+
+  /* 长值只在确实放不下时才断行；中文本身可在任意字间断行 */
   .cert__value {
     color: var(--text);
-    word-break: break-all;
+    overflow-wrap: break-word;
   }
 
   /* 身份证等需要等宽数字的字段 */
@@ -92,24 +115,49 @@
     letter-spacing: .5px;
   }
 
-  /* ===================== 小屏适配：改为两行一组 ===================== */
-  @media (max-width: 760px) {
-    body { padding: 12px 12px 40px; font-size: 16px; }
-
-    .page-title { padding: 0 16px; font-size: 16px; }
-
-    .cert { max-width: 100%; margin-top: 20px; }
-
-    .cert__caption { font-size: 16px; }
-
+  /* ===================== 窄屏适配 ===================== */
+  /* 1) 中等宽度：两组由并排改为上下堆叠，标签与值各自独占一行 */
+  @media (max-width: 900px) {
     .cert__row {
-      grid-template-columns: 96px minmax(0, 1fr);
-      row-gap: 2px;
-      padding: 8px 12px;
+      display: block;
+      padding: 14px 12px;
+      min-height: 0;
     }
 
-    /* 第 3、4 列换到下一行 */
-    .cert__row > :nth-child(3) { grid-column: 1 / -1; }
+    .cert__col {
+      display: block;
+      width: 100%;
+      margin-top: 14px;
+    }
+
+    .cert__col:first-child { margin-top: 0; }
+
+    .cert__label { display: block; }
+    .cert__value { display: block; }
+  }
+
+  /* 2) 手机：单列，标签在上、值在下（与政务网原生页面一致） */
+  @media (max-width: 560px) {
+    body { padding: 10px 10px 40px; font-size: 16px; }
+
+    .page-title {
+      padding: 0 14px;
+      min-height: 46px;
+      font-size: 16px;
+      letter-spacing: .3px;
+    }
+
+    .cert { margin-top: 16px; }
+
+    .cert__caption {
+      padding: 10px 12px;
+      font-size: 16px;
+      line-height: 1.4;
+    }
+
+    .cert__row { padding: 14px 12px; }
+
+    .cert__col { line-height: 1.45; }
   }
 </style>
 </head>
@@ -124,24 +172,36 @@
       <div class="cert__caption">浙江省初中级专业技术职务任职资格证书</div>
 
       <div class="cert__row">
-        <span class="cert__label">姓名：</span>
-        <span class="cert__value">*玉</span>
-        <span class="cert__label">身份证号：</span>
-        <span class="cert__value cert__value--mono">6****************X</span>
+        <div class="cert__col">
+          <span class="cert__label">姓名：</span>
+          <span class="cert__value">*玉</span>
+        </div>
+        <div class="cert__col">
+          <span class="cert__label">身份证号：</span>
+          <span class="cert__value cert__value--mono">6****************X</span>
+        </div>
       </div>
 
       <div class="cert__row">
-        <span class="cert__label">资格名称：</span>
-        <span class="cert__value">工程师</span>
-        <span class="cert__label">专业名称：</span>
-        <span class="cert__value">建筑结构</span>
+        <div class="cert__col">
+          <span class="cert__label">资格名称：</span>
+          <span class="cert__value">工程师</span>
+        </div>
+        <div class="cert__col">
+          <span class="cert__label">专业名称：</span>
+          <span class="cert__value">建筑结构</span>
+        </div>
       </div>
 
       <div class="cert__row">
-        <span class="cert__label">取得资格时间：</span>
-        <span class="cert__value">2022年10月28日</span>
-        <span class="cert__label">评委会名称：</span>
-        <span class="cert__value">杭州市滨江区建设工程技术人员工程师资格评审委员会</span>
+        <div class="cert__col">
+          <span class="cert__label">取得资格时间：</span>
+          <span class="cert__value">2022年10月28日</span>
+        </div>
+        <div class="cert__col">
+          <span class="cert__label">评委会名称：</span>
+          <span class="cert__value">杭州市滨江区建设工程技术人员工程师资格评审委员会</span>
+        </div>
       </div>
     </section>
   </div>
